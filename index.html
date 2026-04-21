@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Big Green Tent</title>
+  <style>
+    @font-face {
+      font-family: 'Articulat CF';
+      src: url('./fonts/Articulat-Regular.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      color: #fff;
+    }
+
+    @media (max-height: 520px) {
+      html, body {
+        overflow: auto;
+      }
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1.25rem, 5vw, 3rem);
+    }
+
+    .page__bg {
+      position: absolute;
+      inset: 0;
+    }
+
+    .page__img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+    }
+
+    .page__tint {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.30);
+    }
+
+    .page__vignette {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 28%),
+        linear-gradient(to top,    rgba(0,0,0,0.65) 0%, transparent 35%),
+        linear-gradient(to right,  rgba(0,0,0,0.40) 0%, transparent 25%),
+        linear-gradient(to left,   rgba(0,0,0,0.40) 0%, transparent 25%);
+    }
+
+    .page__inner {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 34rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: clamp(1.1rem, 3vh, 1.75rem);
+    }
+
+    .logo {
+      user-select: none;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .logo__mark {
+      display: block;
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+      font-size: clamp(1.85rem, 5.2vw, 3rem);
+      line-height: 1.05;
+      background: linear-gradient(
+        135deg,
+        #ffffff 0%,
+        #d4e8c2 35%,
+        #a8cc88 60%,
+        #6aaa3a 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 20px rgba(0,0,0,0.45));
+    }
+
+    .logo__sub {
+      display: block;
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.6rem, 1.5vw, 0.72rem);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.72);
+      margin-top: 0.65rem;
+    }
+
+    .summary {
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.8rem, 1.65vw, 0.95rem);
+      line-height: 1.65;
+      color: rgba(255,255,255,0.88);
+      max-width: 32em;
+    }
+
+    .form {
+      width: 100%;
+      max-width: 26rem;
+    }
+
+    .form__row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem 1rem;
+    }
+
+    .form__field {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .form__label {
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-size: 0.55rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.48);
+      margin-bottom: 0.35rem;
+    }
+
+    .form__input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,0.22);
+      padding: 0.35rem 0;
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-size: 0.78rem;
+      font-weight: 400;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form__input:focus {
+      border-bottom-color: #6aaa3a;
+    }
+
+    .form__submit {
+      margin-top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.28);
+      color: rgba(255,255,255,0.88);
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .form__submit:hover {
+      border-color: #6aaa3a;
+      color: #fff;
+      background: rgba(106,170,58,0.1);
+    }
+
+    .form__submit svg {
+      transition: transform 0.2s;
+    }
+
+    .form__submit:hover svg {
+      transform: translateX(3px);
+    }
+
+    .form__confirm {
+      display: none;
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #a8cc88;
+      margin-top: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="page">
+    <div class="page__bg" aria-hidden="true">
+      <img class="page__img" src="./hero.jpg" alt="" />
+      <div class="page__tint"></div>
+      <div class="page__vignette"></div>
+    </div>
+
+    <div class="page__inner">
+      <div class="logo">
+        <span class="logo__mark">Big Green Tent</span>
+        <span class="logo__sub">Climate &amp; sustainability movement</span>
+      </div>
+
+      <p class="summary">
+        Launching in May 2026, Big Green Tent is a storytelling and giving platform:
+        weekly stories from small organizations making a big difference, a trusted way to
+        support vetted groups, and a community of experts and changemakers turning hope into impact.
+      </p>
+
+      <form
+        class="form"
+        name="waitlist"
+        method="POST"
+        netlify
+        data-netlify="true"
+        data-netlify-honeypot="bot-field"
+        onsubmit="handleSubmit(event)"
+      >
+        <input type="hidden" name="form-name" value="waitlist" />
+        <p style="display:none">
+          <label>Don't fill this out: <input name="bot-field" /></label>
+        </p>
+
+        <div class="form__row">
+          <div class="form__field">
+            <label class="form__label" for="name">Name</label>
+            <input class="form__input" type="text" id="name" name="name" required />
+          </div>
+          <div class="form__field">
+            <label class="form__label" for="email">Email</label>
+            <input class="form__input" type="email" id="email" name="email" required />
+          </div>
+        </div>
+
+        <button class="form__submit" type="submit">
+          Join the tent
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 5H13M9 1L13 5L9 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <p class="form__confirm" id="confirm">You're in — we'll be in touch soon.</p>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    function handleSubmit(e) {
+      e.preventDefault();
+      const form = e.target;
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form)).toString(),
+      })
+        .then(() => {
+          form.style.opacity = '0.45';
+          form.style.pointerEvents = 'none';
+          document.getElementById('confirm').style.display = 'block';
+        })
+        .catch(() => {
+          form.style.opacity = '0.45';
+          form.style.pointerEvents = 'none';
+          document.getElementById('confirm').style.display = 'block';
+        });
+    }
+  </script>
+
+</body>
+</html>
