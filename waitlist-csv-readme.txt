@@ -1,42 +1,27 @@
-Waitlist -> CSV in GitHub (private, not on the public site)
-===========================================================
+Waitlist data — no GitHub token required (recommended)
+======================================================
 
-The landing form POSTs (via JavaScript) to BOTH Netlify Forms (/) and the
-collect-waitlist serverless function. The CSV is updated in
-a *separate* GitHub repository via the GitHub API. The token only exists in
-Netlify environment variables, never in the static files.
+The live form submits to Netlify Forms only. Nothing sensitive is stored in this
+repo or in static files.
 
-Requirements
-------------
-- Deploy the landing site to Netlify (so /.netlify/functions/* runs).
-- Create a *private* GitHub repository to hold the CSV (recommended) OR use
-  a public repo but the CSV path will be visible in that repo—private is best
-  for name/email.
+After deploy:
+  Site configuration → Forms → select form “waitlist”
 
-GitHub: personal access token
----------------------------
-- Fine-grained PAT: repository access to your data repo, "Contents" Read and write.
-- Or classic PAT: "repo" scope (if the data repo is private).
+You can view every submission there and download as CSV from the Netlify UI.
+Optional: enable email or Slack notifications per submission in Netlify.
 
-Netlify: Site settings -> Environment variables
-------------------------------------------------
-- GITHUB_TOKEN   = the PAT (sensitive: never commit it)
-- GITHUB_REPO    = owner/repo  e.g. myorg/bgt-waitlist-data
-- (optional) GITHUB_CSV_PATH = data/waitlist.csv  (default if omitted)
-- (optional) GITHUB_BRANCH  = main              (default if omitted)
-- (optional) ALLOWED_ORIGIN   = https://your-site.netlify.app
-  (restricts the function to form posts from that origin; recommended in production)
+No environment variables are required for this path.
 
-After deploy, submissions append rows:
-  name,email,submitted_at
-with RFC3339 time. First write creates a header row.
 
-Local development
------------------
-Run: npx netlify dev
-and open the URL it prints. Load the same GITHUB_* vars in a .env file in the
-project root (Netlify CLI loads it) or pass env another way. Do not commit .env.
+Optional: append rows to a CSV in GitHub (needs a GitHub PAT)
+=============================================================
 
-The CSV is not in this repo and is not part of the published static files
-(publish = "." in netlify.toml only deploys the site; it does not expose the
-data repo on the web app).
+GitHub does not allow writing files without credentials. To mirror submissions
+into a repo automatically, use `netlify/functions/collect-waitlist.mjs` and set
+Netlify env vars (GITHUB_TOKEN, GITHUB_REPO, …) — then wire the client to POST
+to `/.netlify/functions/collect-waitlist` in addition to `/`, or only to the
+function. See that file’s header comment for details.
+
+Alternatives without maintaining a PAT in Netlify:
+  • Zapier / Make: “Netlify form submission” → Google Sheets or another tool
+  • Export CSV periodically from Netlify Forms (above)
