@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d1f18" />
+  <meta name="color-scheme" content="dark" />
   <title>Big Green Tent</title>
   <style>
     @font-face {
@@ -13,131 +15,260 @@
       font-display: swap;
     }
 
+    @font-face {
+      font-family: 'Articulat CF';
+      src: url('./fonts/Articulat-Bold.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    html, body {
+    html {
+      width: 100%;
       height: 100%;
-      overflow: hidden;
+      min-height: 100%;
+      min-height: 100dvh;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      width: 100%;
+      min-width: 100%;
+      min-height: 100%;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
       color: #fff;
     }
 
-    @media (max-height: 520px) {
-      html, body {
-        overflow: auto;
-      }
-    }
-
-    .page {
-      position: relative;
+    /* Full-viewport hero: fixed so it always fills the screen (not inset by main padding). */
+    .page__bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
       width: 100%;
       height: 100%;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1.25rem, 5vw, 3rem);
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-touch-callout: none;
     }
 
-    .page__bg {
+    .page__photo {
       position: absolute;
       inset: 0;
-    }
-
-    .page__img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 30%;
+      background: url(./assets/hero.png) center / cover no-repeat;
+      pointer-events: none;
     }
 
     .page__tint {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.30);
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.5);
+      pointer-events: auto;
     }
 
-    .page__vignette {
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 28%),
-        linear-gradient(to top,    rgba(0,0,0,0.65) 0%, transparent 35%),
-        linear-gradient(to right,  rgba(0,0,0,0.40) 0%, transparent 25%),
-        linear-gradient(to left,   rgba(0,0,0,0.40) 0%, transparent 25%);
+    /*
+      Hero block is position:fixed and viewport-centred so layout does not depend on <main> height.
+      Background stays on .page__bg; this layer is only for stacking / semantics.
+    */
+    .page {
+      position: relative;
+      z-index: 1;
+      box-sizing: border-box;
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      min-height: 100dvh;
+      margin: 0;
+      /* Symmetric inset so the hero block is visually centred (not shifted up/down). */
+      padding: max(1.15rem, env(safe-area-inset-top)) max(1.15rem, env(safe-area-inset-right))
+        max(1.15rem, env(safe-area-inset-bottom)) max(1.15rem, env(safe-area-inset-left));
+    }
+
+    @media print {
+      .page__photo,
+      .page__tint {
+        display: none !important;
+      }
+
+      .page {
+        min-height: auto;
+        height: auto;
+        background: #0d1f18;
+      }
+
+      .page__inner {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        max-height: none;
+        overflow: visible;
+      }
+
+      .hero-enter {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
     }
 
     .page__inner {
-      position: relative;
+      position: fixed;
       z-index: 2;
-      width: 100%;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      box-sizing: border-box;
+      width: min(
+        34rem,
+        calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 2.25rem)
+      );
       max-width: 34rem;
+      max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 2rem);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: clamp(1.1rem, 3vh, 1.75rem);
+      gap: clamp(0.95rem, 2.8vh, 1.75rem);
+    }
+
+    /* Staggered fade + lift (Taylor-Marriott–style entrance). */
+    @keyframes hero-enter {
+      from {
+        opacity: 0;
+        transform: translate3d(0, 0.9rem, 0);
+      }
+      to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    .hero-enter {
+      opacity: 0;
+      animation-name: hero-enter;
+      animation-duration: 0.92s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-fill-mode: forwards;
+    }
+
+    .page__inner > .hero-enter:nth-child(1) {
+      animation-delay: 0.08s;
+    }
+
+    .page__inner > .hero-enter:nth-child(2) {
+      animation-delay: 0.18s;
+    }
+
+    .page__inner > .hero-enter:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    .page__inner > .hero-enter:nth-child(4) {
+      animation-delay: 0.42s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hero-enter {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      .form__submit:active {
+        transform: none;
+      }
+    }
+
+    @media (min-width: 640px) {
+      .page {
+        padding: max(clamp(1.25rem, 4vw, 2.5rem), env(safe-area-inset-top))
+          max(clamp(1.25rem, 5vw, 3rem), env(safe-area-inset-right))
+          max(clamp(1.25rem, 4vw, 2.5rem), env(safe-area-inset-bottom))
+          max(clamp(1.25rem, 5vw, 3rem), env(safe-area-inset-left));
+      }
+    }
+
+    .launch {
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.78rem, 2.1vw, 1.05rem);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      margin: 0;
     }
 
     .logo {
       user-select: none;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .logo__mark {
+    .logo__img {
       display: block;
-      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
-      font-weight: 400;
-      font-size: clamp(1.85rem, 5.2vw, 3rem);
-      line-height: 1.05;
-      background: linear-gradient(
-        135deg,
-        #ffffff 0%,
-        #d4e8c2 35%,
-        #a8cc88 60%,
-        #6aaa3a 100%
-      );
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 2px 20px rgba(0,0,0,0.45));
-    }
-
-    .logo__sub {
-      display: block;
-      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
-      font-weight: 400;
-      font-size: clamp(0.6rem, 1.5vw, 0.72rem);
-      letter-spacing: 0.28em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.72);
-      margin-top: 0.65rem;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      filter: brightness(0) invert(1) drop-shadow(0 2px 18px rgba(0, 0, 0, 0.35));
     }
 
     .summary {
       font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
       font-weight: 400;
-      font-size: clamp(0.8rem, 1.65vw, 0.95rem);
-      line-height: 1.65;
-      color: rgba(255,255,255,0.88);
+      font-size: clamp(0.85rem, 2.4vw, 0.95rem);
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.7);
+      width: 100%;
       max-width: 32em;
+      margin-inline: auto;
+      text-wrap: balance;
+      hyphens: auto;
+      -webkit-hyphens: auto;
+      overflow-wrap: break-word;
     }
 
     .form {
       width: 100%;
       max-width: 26rem;
+      margin-inline: auto;
+      align-self: center;
     }
 
     .form__row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 0.75rem 1rem;
+      gap: 0.85rem 1rem;
+    }
+
+    @media (max-width: 520px) {
+      .form__row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
     }
 
     .form__field {
@@ -148,109 +279,264 @@
 
     .form__label {
       font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
-      font-size: 0.55rem;
+      font-size: 0.6rem;
       font-weight: 400;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.48);
-      margin-bottom: 0.35rem;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 0.45rem;
     }
 
     .form__input {
       width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.22);
-      padding: 0.35rem 0;
+      min-height: 2.75rem;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      border-radius: 0.45rem;
+      padding: 0.65rem 0.9rem;
       font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
-      font-size: 0.78rem;
+      font-size: max(16px, 0.95rem);
       font-weight: 400;
       color: #fff;
       outline: none;
-      transition: border-color 0.2s;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .form__input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
     }
 
     .form__input:focus {
-      border-bottom-color: #6aaa3a;
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.75);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+
+    .form__actions {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: 1rem;
     }
 
     .form__submit {
-      margin-top: 1rem;
+      position: relative;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      width: 100%;
-      background: none;
-      border: 1px solid rgba(255,255,255,0.28);
-      color: rgba(255,255,255,0.88);
-      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
-      font-size: 0.62rem;
-      font-weight: 400;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      padding: 0.75rem 1.25rem;
+      width: max-content;
+      max-width: min(14.5rem, 100%);
+      min-height: 3rem;
+      margin: 0;
+      border: 0;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.35rem;
+      white-space: nowrap;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      overflow: hidden;
+      background: #fff;
+      -webkit-appearance: none;
+      appearance: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      transition: box-shadow 0.2s ease, transform 0.15s ease;
+      touch-action: manipulation;
     }
 
     .form__submit:hover {
-      border-color: #6aaa3a;
-      color: #fff;
-      background: rgba(106,170,58,0.1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
     }
 
-    .form__submit svg {
-      transition: transform 0.2s;
+    .form__submit:active {
+      transform: scale(0.98);
     }
 
-    .form__submit:hover svg {
-      transform: translateX(3px);
+    @media (max-width: 520px) {
+      .form__actions {
+        margin-top: 0.85rem;
+      }
+
+      .form__submit {
+        width: 100%;
+        max-width: 100%;
+        min-height: 3.1rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+
+      .form__submit__label {
+        font-size: clamp(0.8rem, 3.8vw, 0.9rem);
+      }
     }
 
-    .form__confirm {
-      display: none;
+    @media (max-width: 768px) {
+      .form__submit__label {
+        background-attachment: scroll;
+      }
+    }
+
+    .form__submit:focus {
+      outline: none;
+    }
+
+    .form__submit:focus-visible {
+      outline: 2px solid rgba(0, 0, 0, 0.35);
+      outline-offset: 2px;
+    }
+
+    /* Text knocks out the white: same hero as the page, clipped to the letters, so the photo shows through the label. */
+    .form__submit__label {
+      position: relative;
+      z-index: 0;
+      display: block;
+      width: 100%;
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-synthesis: weight;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+      text-align: center;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      background-image: url(./assets/hero.png);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    @supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+      .form__submit__label {
+        color: #141414;
+        -webkit-text-fill-color: #141414;
+        background: none;
+      }
+    }
+
+    .corner-credit {
+      position: fixed;
+      z-index: 3;
+      max-width: min(
+        22rem,
+        calc(100vw - 2rem - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px))
+      );
+      margin: 0;
       font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
-      font-size: 0.72rem;
+      font-size: clamp(0.74rem, 1.15vw, 0.85rem);
       font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #a8cc88;
-      margin-top: 0.85rem;
+      letter-spacing: 0.03em;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.68);
+      pointer-events: auto;
+    }
+
+    .photo-credit {
+      left: max(1.125rem, env(safe-area-inset-left));
+      top: max(1.125rem, env(safe-area-inset-top));
+      text-align: left;
+    }
+
+    .site-credit {
+      right: max(1.125rem, env(safe-area-inset-right));
+      bottom: max(1.125rem, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.625rem;
+      flex-wrap: wrap;
+      text-align: right;
+    }
+
+    .corner-credit a {
+      color: rgba(255, 255, 255, 0.86);
+      transition: color 0.2s, text-decoration-color 0.2s;
+    }
+
+    .photo-credit a {
+      text-decoration: underline;
+      text-decoration-color: rgba(255, 255, 255, 0.35);
+      text-underline-offset: 0.2em;
+    }
+
+    .site-credit__brand {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .site-credit__mark {
+      display: block;
+      height: 1.5rem;
+      width: auto;
+      opacity: 0.95;
+    }
+
+    @media (min-width: 640px) {
+      .site-credit__mark {
+        height: 1.85rem;
+      }
+    }
+
+    .corner-credit a:hover {
+      color: #fff;
+    }
+
+    .photo-credit a:hover {
+      text-decoration-color: rgba(255, 255, 255, 0.6);
+    }
+
+    .site-credit__brand:hover {
+      color: rgba(255, 255, 255, 1);
+    }
+
+    .site-credit__brand:hover .site-credit__mark {
+      opacity: 1;
     }
   </style>
 </head>
 <body>
 
-  <main class="page">
-    <div class="page__bg" aria-hidden="true">
-      <img class="page__img" src="./hero.jpg" alt="" />
-      <div class="page__tint"></div>
-      <div class="page__vignette"></div>
-    </div>
+  <div class="page__bg" aria-hidden="true">
+    <div class="page__photo" aria-hidden="true"></div>
+    <div class="page__tint" aria-hidden="true"></div>
+  </div>
 
+  <main class="page">
     <div class="page__inner">
-      <div class="logo">
-        <span class="logo__mark">Big Green Tent</span>
-        <span class="logo__sub">Climate &amp; sustainability movement</span>
+      <p class="launch hero-enter">Launching in May 2026</p>
+
+      <div class="logo hero-enter">
+        <img
+          class="logo__img"
+          src="./icon-logo.svg"
+          width="7835"
+          height="1037"
+          alt="Big Green Tent"
+          decoding="async"
+        />
       </div>
 
-      <p class="summary">
-        Launching in May 2026, Big Green Tent is a storytelling and giving platform:
-        weekly stories from small organizations making a big difference, a trusted way to
-        support vetted groups, and a community of experts and changemakers turning hope into impact.
+      <p class="summary hero-enter">
+        A curated, expert-vetted directory connecting donors with rigorously reviewed environmental
+        organisations across conservation, climate justice, and renewable energy with transparent
+        profiles and direct giving.
       </p>
 
       <form
-        class="form"
+        class="form hero-enter"
         name="waitlist"
         method="POST"
-        netlify
-        data-netlify="true"
-        data-netlify-honeypot="bot-field"
         onsubmit="handleSubmit(event)"
       >
-        <input type="hidden" name="form-name" value="waitlist" />
         <p style="display:none">
           <label>Don't fill this out: <input name="bot-field" /></label>
         </p>
@@ -258,44 +544,96 @@
         <div class="form__row">
           <div class="form__field">
             <label class="form__label" for="name">Name</label>
-            <input class="form__input" type="text" id="name" name="name" required />
+            <input class="form__input" type="text" id="name" name="name" placeholder="Your name" required />
           </div>
           <div class="form__field">
             <label class="form__label" for="email">Email</label>
-            <input class="form__input" type="email" id="email" name="email" required />
+            <input class="form__input" type="email" id="email" name="email" placeholder="your@email.com" required />
           </div>
         </div>
 
-        <button class="form__submit" type="submit">
-          Join the tent
-          <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 5H13M9 1L13 5L9 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-
-        <p class="form__confirm" id="confirm">You're in — we'll be in touch soon.</p>
+        <div class="form__actions">
+          <button class="form__submit" type="submit" aria-label="Join the Waitlist">
+            <span class="form__submit__label" aria-hidden="true">Join the Waitlist</span>
+          </button>
+        </div>
       </form>
     </div>
   </main>
 
+  <p class="corner-credit photo-credit">
+    Photography by
+    <a href="https://jonmccormack.com/" target="_blank" rel="noopener noreferrer">Jon McCormack</a>
+  </p>
+
+  <p class="corner-credit site-credit">
+    <span class="site-credit__intro">Web Design by</span>
+    <a
+      class="site-credit__brand"
+      href="https://www.taylor-marriott.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Taylor Marriott"
+    >
+      <img
+        class="site-credit__mark"
+        src="./assets/logo-web.svg"
+        alt="Taylor Marriott"
+        width="8123"
+        height="2075"
+        decoding="async"
+      />
+    </a>
+  </p>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
   <script>
+    (function () {
+      var bg = document.querySelector('.page__bg');
+      if (!bg) return;
+      function block(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      ['contextmenu', 'dragstart', 'selectstart', 'copy', 'cut', 'gesturestart'].forEach(
+        function (name) {
+          bg.addEventListener(name, block, true);
+        }
+      );
+    })();
+
+    /** Same triple-burst as Newsletter subscribe in the-big-green-tent-main (Newsletter.tsx). */
+    function fireWaitlistConfetti() {
+      if (typeof confetti !== 'function') return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var narrow = window.matchMedia('(max-width: 540px)').matches;
+      var opts = {
+        particleCount: narrow ? 55 : 100,
+        spread: narrow ? 60 : 70,
+        origin: { y: 0.6 },
+        colors: ['#2D915F', '#f4c148', '#4fa2db', '#ed5632'],
+      };
+      confetti(opts);
+      confetti(Object.assign({}, opts, { angle: 60, origin: { x: 0, y: 0.6 } }));
+      confetti(Object.assign({}, opts, { angle: 120, origin: { x: 1, y: 0.6 } }));
+    }
+
     function handleSubmit(e) {
       e.preventDefault();
       const form = e.target;
-      fetch('/', {
+      fetch('/.netlify/functions/collect-waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams(new FormData(form)).toString(),
       })
-        .then(() => {
+        .then(function (res) {
+          if (!res.ok) throw new Error('Submit failed');
           form.style.opacity = '0.45';
           form.style.pointerEvents = 'none';
-          document.getElementById('confirm').style.display = 'block';
+          fireWaitlistConfetti();
         })
-        .catch(() => {
-          form.style.opacity = '0.45';
-          form.style.pointerEvents = 'none';
-          document.getElementById('confirm').style.display = 'block';
+        .catch(function () {
+          // Leave form active so the user can try again; no in-page message.
         });
     }
   </script>
