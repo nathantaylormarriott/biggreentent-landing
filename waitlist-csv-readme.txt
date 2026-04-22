@@ -1,7 +1,8 @@
 Waitlist -> CSV in GitHub (private, not on the public site)
 ===========================================================
 
-The site only POSTs to a Netlify serverless function. The CSV is updated in
+The landing form POSTs (via JavaScript) to BOTH Netlify Forms (/) and the
+collect-waitlist serverless function. The CSV is updated in
 a *separate* GitHub repository via the GitHub API. The token only exists in
 Netlify environment variables, never in the static files.
 

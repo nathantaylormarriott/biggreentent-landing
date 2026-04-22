@@ -690,13 +690,17 @@
       e.preventDefault();
       var form = e.target;
       var body = new URLSearchParams(new FormData(form)).toString();
-      fetch('/', {
+      var opts = {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: body,
-      })
-        .then(function (res) {
-          if (!res.ok) throw new Error('Submit failed');
+      };
+      /* Netlify Forms (dashboard export) + serverless CSV append to GitHub — see waitlist-csv-readme.txt */
+      Promise.all([fetch('/', opts), fetch('/.netlify/functions/collect-waitlist', opts)])
+        .then(function (responses) {
+          var netlifyOk = responses[0].ok;
+          var csvOk = responses[1].ok;
+          if (!netlifyOk && !csvOk) throw new Error('Submit failed');
           form.style.opacity = '0.45';
           form.style.pointerEvents = 'none';
           fireWaitlistConfetti();
