@@ -1,3 +1,5 @@
 .env
 .env.*
 .netlify
+.DS_Store
+hero.jpg
