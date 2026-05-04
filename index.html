@@ -20,7 +20,7 @@
     property="og:description"
     content="Big Green Tent waitlist — join for a curated, expert-vetted directory connecting donors with environmental organisations."
   />
-  <meta property="og:image" content="https://biggreentent-landing.netlify.app/assets/hero.png" />
+  <meta property="og:image" content="https://biggreentent-landing.netlify.app/assets/hero.jpg" />
   <meta property="og:image:alt" content="Big Green Tent landscape" />
 
   <meta name="twitter:card" content="summary_large_image" />
@@ -29,7 +29,7 @@
     name="twitter:description"
     content="Big Green Tent waitlist — join for a curated directory for environmental giving."
   />
-  <meta name="twitter:image" content="https://biggreentent-landing.netlify.app/assets/hero.png" />
+  <meta name="twitter:image" content="https://biggreentent-landing.netlify.app/assets/hero.jpg" />
 
   <meta name="apple-mobile-web-app-title" content="Big Green Tent Waitlist" />
 
@@ -103,8 +103,33 @@
     .page__photo {
       position: absolute;
       inset: 0;
-      background: url(./assets/hero.png) center / cover no-repeat;
       pointer-events: none;
+    }
+
+    .page__slide {
+      position: absolute;
+      inset: 0;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transition: opacity 1.6s ease-in-out;
+      will-change: opacity;
+    }
+
+    .page__slide--active {
+      opacity: 1;
+    }
+
+    .page__slide:nth-child(1) { background-image: url(./assets/hero.jpg); }
+    .page__slide:nth-child(2) { background-image: url(./assets/hero-2.jpg); }
+    .page__slide:nth-child(3) { background-image: url(./assets/hero-3.jpg); }
+    .page__slide:nth-child(4) { background-image: url(./assets/hero-4.jpg); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .page__slide {
+        transition: none;
+      }
     }
 
     .page__tint {
@@ -469,7 +494,7 @@
       -webkit-font-smoothing: antialiased;
       background-image:
         linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-        url(./assets/hero.png);
+        url(./assets/hero.jpg);
       background-size: cover, cover;
       background-position: center, center;
       background-repeat: no-repeat, no-repeat;
@@ -604,7 +629,12 @@
 <body>
 
   <div class="page__bg" aria-hidden="true">
-    <div class="page__photo" aria-hidden="true"></div>
+    <div class="page__photo" aria-hidden="true">
+      <div class="page__slide page__slide--active"></div>
+      <div class="page__slide"></div>
+      <div class="page__slide"></div>
+      <div class="page__slide"></div>
+    </div>
     <div class="page__tint" aria-hidden="true"></div>
   </div>
 
@@ -624,9 +654,9 @@
       </div>
 
       <p class="summary hero-enter">
-        A curated, expert-vetted directory connecting donors with rigorously reviewed environmental
-        organisations across oceans, wildlife and environmental law and policy with transparent
-        profiles and direct giving.
+        Supporting solutions to the climate crisis by vigorously vetting, supporting and profiling
+        high impact small and mediums sized environmental organizations. These are the groups you
+        can feel great about getting behind. Every single one of them.
       </p>
 
       <form
@@ -723,6 +753,17 @@
           bg.addEventListener(name, block, true);
         }
       );
+    })();
+
+    (function () {
+      var slides = document.querySelectorAll('.page__slide');
+      if (slides.length < 2) return;
+      var i = 0;
+      setInterval(function () {
+        slides[i].classList.remove('page__slide--active');
+        i = (i + 1) % slides.length;
+        slides[i].classList.add('page__slide--active');
+      }, 6000);
     })();
 
     /** Same triple-burst as Newsletter subscribe in the-big-green-tent-main (Newsletter.tsx). */
