@@ -9,7 +9,7 @@
   <title>Big Green Tent Waitlist</title>
   <meta
     name="description"
-    content="Big Green Tent waitlist — join for a curated, expert-vetted directory connecting donors with environmental organisations. Launching May 2026."
+    content="Big Green Tent waitlist — join for a curated, expert-vetted directory connecting donors with environmental organisations. Launching September 1, 2026."
   />
 
   <!-- Replace BIG_GREEN_TENT_SITE below with your live https origin (custom domain or *.netlify.app). -->
@@ -281,16 +281,62 @@
       }
     }
 
-    .launch {
+    .countdown {
+      width: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(0.55rem, 1.8vh, 0.85rem);
+    }
+
+    .countdown__tagline {
+      margin: 0;
       font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
       font-weight: 400;
       font-size: clamp(0.78rem, 2.1vw, 1.05rem);
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-      margin: 0;
+      color: rgba(255, 255, 255, 0.82);
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
     }
 
+    .countdown__grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(0.2rem, 1vw, 0.45rem);
+      width: min(100%, 28rem);
+      margin-inline: auto;
+    }
+
+    .countdown__unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      min-width: 0;
+    }
+
+    .countdown__value {
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.85rem, 7.5vw, 2.75rem);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      color: #fff;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+    }
+
+    .countdown__label {
+      font-family: 'Articulat CF', system-ui, -apple-system, sans-serif;
+      font-weight: 400;
+      font-size: clamp(0.62rem, 1.9vw, 0.78rem);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.82);
+      white-space: nowrap;
+    }
     .logo {
       user-select: none;
       display: flex;
@@ -640,7 +686,27 @@
 
   <main class="page">
     <div class="page__inner">
-      <p class="launch hero-enter">Launching in May 2026</p>
+      <div class="countdown hero-enter" role="timer" aria-live="polite" aria-label="Countdown to launch">
+        <p class="countdown__tagline">Launching in:</p>
+        <div class="countdown__grid">
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-days">00</span>
+            <span class="countdown__label">Days</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-hours">00</span>
+            <span class="countdown__label">Hours</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-minutes">00</span>
+            <span class="countdown__label">Minutes</span>
+          </div>
+          <div class="countdown__unit">
+            <span class="countdown__value" id="countdown-seconds">00</span>
+            <span class="countdown__label">Seconds</span>
+          </div>
+        </div>
+      </div>
 
       <div class="logo hero-enter">
         <img
@@ -813,6 +879,79 @@
           }
         });
     }
+
+    (function () {
+      var daysEl = document.getElementById('countdown-days');
+      var hoursEl = document.getElementById('countdown-hours');
+      var minutesEl = document.getElementById('countdown-minutes');
+      var secondsEl = document.getElementById('countdown-seconds');
+      if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+
+      var etFormatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23',
+      });
+
+      function getEasternTimestamp(year, month, day, hour, minute, second) {
+        var guess = Date.UTC(year, month - 1, day, hour + 4, minute, second);
+        for (var attempt = 0; attempt < 6; attempt += 1) {
+          var parts = {};
+          etFormatter.formatToParts(new Date(guess)).forEach(function (part) {
+            if (part.type !== 'literal') parts[part.type] = part.value;
+          });
+          var asUtc = Date.UTC(
+            Number(parts.year),
+            Number(parts.month) - 1,
+            Number(parts.day),
+            Number(parts.hour),
+            Number(parts.minute),
+            Number(parts.second)
+          );
+          var targetUtc = Date.UTC(year, month - 1, day, hour, minute, second);
+          var delta = targetUtc - asUtc;
+          if (delta === 0) return guess;
+          guess += delta;
+        }
+        return guess;
+      }
+
+      var launchAt = getEasternTimestamp(2026, 9, 1, 0, 0, 0);
+
+      function pad(value) {
+        return String(value).padStart(2, '0');
+      }
+
+      function renderCountdown() {
+        var remaining = launchAt - Date.now();
+        if (remaining <= 0) {
+          daysEl.textContent = '00';
+          hoursEl.textContent = '00';
+          minutesEl.textContent = '00';
+          secondsEl.textContent = '00';
+          return;
+        }
+        var totalSeconds = Math.floor(remaining / 1000);
+        var days = Math.floor(totalSeconds / 86400);
+        totalSeconds %= 86400;
+        var hours = Math.floor(totalSeconds / 3600);
+        totalSeconds %= 3600;
+        var minutes = Math.floor(totalSeconds / 60);
+        var seconds = totalSeconds % 60;
+        daysEl.textContent = pad(days);
+        hoursEl.textContent = pad(hours);
+        minutesEl.textContent = pad(minutes);
+        secondsEl.textContent = pad(seconds);
+      }
+
+      renderCountdown();
+      setInterval(renderCountdown, 1000);
+    })();
 
     (function () {
       var form = document.querySelector('form.waitlist-form');
